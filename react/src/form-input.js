@@ -1,3 +1,4 @@
+const _ = require('lodash')
 import React from 'react'
 
 export const TextInput = (props) => {
@@ -5,9 +6,9 @@ export const TextInput = (props) => {
 
   return (
     <div className="row">
-      <div className="small-12 columns">
+      <div className="columns">
         <label>
-          {props.name}
+          {_.capitalize(props.name)}
           <input type={type} name={props.name} value={props.value}
             onChange={props.onChange} />
         </label>

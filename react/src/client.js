@@ -3,7 +3,7 @@ const util = require('util')
 import React, { Component } from 'react'
 import {Link} from 'react-router'
 
-import {ClientService} from './service'
+import {ClientService, ProjectService} from './service'
 import {TextInput} from './form-input'
 
 const ErrorList = (props) => {
@@ -26,9 +26,7 @@ const ClientRow = (props) => (
 )
 
 const ClientNav = (props) => (
-  <nav>
-    <Link to="/clients/new">New Client</Link>
-  </nav>
+  <Link className="button expanded" to="/clients/new">New Client</Link>
 )
 
 function ClientList(props){
@@ -61,7 +59,8 @@ export class ClientForm extends Component {
     var payload = {client: this.state.client}
 
     // Can't bind this with assignment?
-    var p = this.state.client.id ? ClientService.update(payload):
+    var p = this.state.client._id ? 
+      ClientService.update(this.state.client._id, payload):
       ClientService.create(payload)
 
     p.then(() => this.props.router.push('/clients'))
@@ -96,7 +95,11 @@ export class ClientForm extends Component {
     return(
       <div>
         {this.state.client._id &&
-            <Link to={projects_url}>Projects</Link>
+            <ul className="menu">
+              <li>
+                <Link to={projects_url}>Projects</Link>
+              </li>
+            </ul>
         }
 
         <form onSubmit={this.submit.bind(this)}>
@@ -124,15 +127,18 @@ export class ClientForm extends Component {
             onChange={this.change.bind(this)} />
 
           <div className="row">
-            <div className="small-12 columns">
+            <div className="button-group columns">
               <button type="submit" className="button">Save</button>
+              <button type="button" className="button secondary"
+                onClick={this.props.router.goBack}>Cancel</button>
+              {this.state.client._id &&
+                  <button type="button" className="button alert" 
+                    onClick={this.delete.bind(this)}>Delete</button>
+              }
             </div>
           </div>
         </form>
 
-        {this.state.client._id &&
-            <button onClick={this.delete.bind(this)}>delete</button>
-        }
       </div>
     )
   }
@@ -143,12 +149,32 @@ export class ClientProjectsList extends Component {
     super(props)
 
     this.state = {
-      client: null
+      client: {
+        projects: []
+      }
     }
   }
 
   componentDidMount(){
+    ClientService.index(this.props.params.id)
+      .then(json => this.setState({client: json}))
+  }
 
+  render(){
+    const items = this.state.client.projects.map((p) => (
+      <li key={p._id}>
+        <Link to={util.format('/clients/%s/projects/%s', this.state.client._id,
+          p._id)}>{p.name}</Link>
+      </li>
+    ))
+
+    return(
+      <div>
+        <Link className="button expanded" to={util.format('/clients/%s/projects/new',
+          this.state.client._id)}>New Project</Link>
+        <ul>{items}</ul>
+      </div>
+    )
   }
 }
 
@@ -162,7 +188,6 @@ class ClientListContainer extends Component {
   }
 
   componentDidMount(){
-    //ClientService.all()
     ClientService.index()
       .then(json => this.setState({clients: json}))
   }

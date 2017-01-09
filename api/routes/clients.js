@@ -1,8 +1,10 @@
-var express = require('express')
+const express = require('express')
 const createError = require('http-errors')
-var router = express.Router()
 
 const Client = require('../db').Client
+
+const router = express.Router()
+router.use('/:client_id/projects', require('./projects'))
 
 router.get('/', (req, res, next) => {
   Client.find({})
@@ -23,8 +25,19 @@ router.post('/', (req, res, next) => {
 })
 
 router.put('/:id', (req, res, next) => {
-  Client.findOneAndUpdate({_id: req.params.id}, req.body.client)
-    .then(doc => doc ? res.json(doc): next(createError(404)))
+
+  // Use save() instead of findOneAndUpdate() so that validation is
+  // performed
+  Client.findById(req.params.id)
+    .then(doc => {
+      if (!doc){
+        return next(createError(404))
+      }
+      
+      Object.assign(doc, req.body.client)
+      return doc.save()
+    })
+    .then(doc => res.json(doc))
     .catch(err => next(err))
 })
 

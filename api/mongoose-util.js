@@ -12,3 +12,13 @@ exports.error_messages = (err) => {
   return rv
 }
 
+exports.create_error = (name, field, message) => {
+  var err = new Error()
+
+  err.name = name
+  err.errors = {}
+  err.errors[field] = {message: message}
+
+  return err
+}
+

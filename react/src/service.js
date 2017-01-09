@@ -2,31 +2,52 @@ const util = require('util')
 
 import AppError from './error'
 
+const base = 'http://192.168.1.174:3001'
+
 class RemoteService {
-  static BASE_URL = null
-
   static index(){
-    return this._request(this.BASE_URL, 'GET')
+    return this._request(this._generate_url.apply(this, arguments), 'GET')
   }
 
-  static create(data){
-    return this._request(this.BASE_URL, 'POST', data)
+  static create(){
+    var $data = [].pop.apply(arguments)
+    return this._request(this._generate_url.apply(this, arguments), 'POST', 
+      $data)
   }
 
-  static read(id){
-    return this._request(this._resource_url(id), 'GET')
+  static read(){
+    return this._request(this._generate_url.apply(this, arguments), 'GET')
   }
 
-  static update(id, data){
-    return this._request(this._resource_url(id), 'PUT', data)
+  static update(){
+    var $data = [].pop.apply(arguments)
+    return this._request(this._generate_url.apply(this, arguments), 'PUT', 
+      $data)
   }
 
-  static destroy(id){
-    return this._request(this._resource_url(id), 'DELETE')
+  static destroy(){
+    return this._request(this._generate_url.apply(this, arguments), 'DELETE')
   }
 
-  static _resource_url(id){
-    return util.format('%s/%s', this.BASE_URL, id)
+  static _resource_url(id=null){
+    return id ? util.format('%s/%s', this.URL, id): this.URL
+  }
+
+  static _generate_url(){
+    var ids = Array.prototype.slice.call(arguments)
+    var prot = this
+    var chain = []
+
+    // Get all prototypes up to top-level parent
+    while (prot !== RemoteService){
+      chain.unshift(prot)
+      prot = Object.getPrototypeOf(prot)
+    }
+
+    // Generate URL fragments from each prototype's `_resource_url()` method
+    var fragments = chain.map((prot, i) => prot._resource_url(ids[i]))
+
+    return fragments.join('')
   }
 
   static _request(url, method, data){
@@ -50,6 +71,10 @@ class RemoteService {
 }
 
 export class ClientService extends RemoteService {
-  static BASE_URL = 'http://localhost:3001/clients'
+  static URL = util.format('%s/clients', base)
+}
+
+export class ProjectService extends ClientService {
+  static URL = '/projects'
 }
 
