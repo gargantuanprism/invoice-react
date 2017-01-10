@@ -1,43 +1,11 @@
 const util = require('util')
 
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import {Link} from 'react-router'
 
-import {ClientService, ProjectService} from './service'
+import {ClientService} from './service'
+import {ErrorList} from './error'
 import {TextInput} from './form-input'
-
-const ErrorList = (props) => {
-  const items = props.err.messages.map((msg, i) =>
-    <li key={i}>{msg}</li>
-  )
-
-  return (
-    <ul>{items}</ul>
-  )
-}
-
-// Can't use backticks here because Chrome DevTools misinterprets them
-const ClientRow = (props) => (
-  <li>
-    <Link to={util.format('/clients/%s', props.client._id)}>
-      {props.client.name ? props.client.name: props.client._id}
-    </Link>
-  </li>
-)
-
-const ClientNav = (props) => (
-  <Link className="button expanded" to="/clients/new">New Client</Link>
-)
-
-function ClientList(props){
-  const items = props.clients.map(client =>
-    <ClientRow client={client} key={client._id} />
-  )
-
-  return(
-    <ul>{items}</ul>
-  )
-}
 
 export class ClientForm extends Component {
   constructor(props){
@@ -77,8 +45,8 @@ export class ClientForm extends Component {
   }
 
   componentDidMount(){
-    if (this.props.params.id){
-      ClientService.read(this.props.params.id)
+    if (this.props.params.client_id){
+      ClientService.read(this.props.params.client_id)
         .then(json => this.setState({client: json}))
     }
   }
@@ -144,63 +112,5 @@ export class ClientForm extends Component {
   }
 }
 
-export class ClientProjectsList extends Component {
-  constructor(props){
-    super(props)
-
-    this.state = {
-      client: {
-        projects: []
-      }
-    }
-  }
-
-  componentDidMount(){
-    ClientService.index(this.props.params.id)
-      .then(json => this.setState({client: json}))
-  }
-
-  render(){
-    const items = this.state.client.projects.map((p) => (
-      <li key={p._id}>
-        <Link to={util.format('/clients/%s/projects/%s', this.state.client._id,
-          p._id)}>{p.name}</Link>
-      </li>
-    ))
-
-    return(
-      <div>
-        <Link className="button expanded" to={util.format('/clients/%s/projects/new',
-          this.state.client._id)}>New Project</Link>
-        <ul>{items}</ul>
-      </div>
-    )
-  }
-}
-
-class ClientListContainer extends Component {
-  constructor(){
-    super()
-
-    this.state = {
-      clients: []
-    }
-  }
-
-  componentDidMount(){
-    ClientService.index()
-      .then(json => this.setState({clients: json}))
-  }
-
-  render(){
-    return(
-      <div>
-        <ClientNav />
-        <ClientList clients={this.state.clients} />
-      </div>
-    )
-  }
-}
-
-export default ClientListContainer
+export default ClientForm
 

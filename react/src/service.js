@@ -74,7 +74,15 @@ export class ClientService extends RemoteService {
   static URL = util.format('%s/clients', base)
 }
 
+export class InvoiceService extends RemoteService {
+  static URL = util.format('%s/invoices', base)
+}
+
 export class ProjectService extends ClientService {
   static URL = '/projects'
+}
+
+export class InvoiceItemService extends InvoiceService {
+  static URL = '/invoice_items'
 }
 

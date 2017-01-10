@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-const uniqueValidator = require('mongoose-unique-validator')
 
 mongoose.Promise = global.Promise
 mongoose.connect('mongodb://localhost/invoice-react')
@@ -33,12 +32,33 @@ client_schema.pre('save', function(next){
 
   if (new Set(names).size != names.length){
     next(m_util.create_error('ValidationError', 'name', 'Not unique'))
+    return
   }
-  else {
-    next()
-  }
+
+  next()
 })
-//client_schema.plugin(uniqueValidator)
+
+const invoice_item_schema = new Schema({
+  desc: {type: String, required: true, minLength: 1},
+  hours: Number,
+  rate: Number,
+  amount: Number,
+  type: {type: String, enum: ['Hourly Work', 'Fee', 'Deposit', 'Expense']},
+  project_id: {type: Schema.Types.ObjectId, required: true}
+}, {
+  timestamps: true
+})
+
+const invoice_schema = new Schema({
+  desc: {type: String, required: true, minLength: 1},
+  client_id: {type: Schema.Types.ObjectId, required: true},
+  slug: {type: String, required: true, minLength: 1},
+  paid: {type: Boolean, default: false},
+  invoice_items: [invoice_item_schema]
+}, {
+  timestamps: true
+})
 
 exports.Client = mongoose.model('Client', client_schema)
+exports.Invoice = mongoose.model('Invoice', invoice_schema)
 

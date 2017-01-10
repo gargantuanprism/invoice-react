@@ -1,4 +1,16 @@
-class AppError extends Error {
+import React from 'react'
+
+export const ErrorList = (props) => {
+  const items = props.err.messages.map((msg, i) =>
+    <li key={i}>{msg}</li>
+  )
+
+  return (
+    <ul>{items}</ul>
+  )
+}
+
+export class AppError extends Error {
   constructor(messages){
     super()
 
@@ -6,6 +18,4 @@ class AppError extends Error {
     this.messages = messages
   }
 }
-
-export default AppError
 

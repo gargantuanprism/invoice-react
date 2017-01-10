@@ -7,7 +7,6 @@ var cors = require('cors')
 
 require('./db')
 var m_util = require('./mongoose-util')
-var clients = require('./routes/clients');
 
 var app = express();
 
@@ -17,7 +16,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors())
 
-app.use('/clients', clients)
+app.use('/clients', require('./routes/clients'))
+app.use('/invoices', require('./routes/invoices'))
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

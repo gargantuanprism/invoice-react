@@ -1,16 +1,16 @@
 const express = require('express')
 const createError = require('http-errors')
 
-const Client = require('../db').Client
+const Invoice = require('../db').Invoice
 
 const router = express.Router()
-router.use('/:client_id/projects', require('./projects'))
+router.use('/:invoice_id/invoice_items', require('./invoice-items'))
 
-router.param('client_id', (req, res, next, client_id) => {
-  Client.findById(client_id)
+router.param('invoice_id', (req, res, next, invoice_id) => {
+  Invoice.findById(invoice_id)
     .then(doc => {
       if (doc){
-        req.client = doc
+        req.invoice = doc
         next()
       }
       else {
@@ -21,31 +21,31 @@ router.param('client_id', (req, res, next, client_id) => {
 })
 
 router.get('/', (req, res, next) => {
-  Client.find({})
+  Invoice.find({})
     .then(docs => res.json(docs))
     .catch(err => next(err))
 })
 
-router.get('/:client_id', (req, res, next) => {
-  res.json(req.client)
+router.get('/:invoice_id', (req, res, next) => {
+  res.json(req.invoice)
 })
 
 router.post('/', (req, res, next) => {
-  new Client(req.body.client).save()
+  new Invoice(req.body.invoice).save()
     .then(doc => res.json(doc))
     .catch(err => next(err))
 })
 
-router.put('/:client_id', (req, res, next) => {
-  Object.assign(req.client, req.body.client)
+router.put('/:invoice_id', (req, res, next) => {
+  Object.assign(req.invoice, req.body.invoice)
 
-  req.client.save()
+  req.invoice.save()
     .then(doc => res.json(doc))
     .catch(err => next(err))
 })
 
-router.delete('/:client_id', (req, res, next) => {
-  Client.findOneAndRemove(req.client._id)
+router.delete('/:invoice_id', (req, res, next) => {
+  Invoice.findOneAndRemove(req.invoice._id)
     .then(doc => res.json(doc))
     .catch(err => next(err))
 })
