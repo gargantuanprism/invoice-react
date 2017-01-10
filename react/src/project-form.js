@@ -1,4 +1,4 @@
-const util = require('util')
+import util from 'util'
 
 import {ProjectService} from './service'
 import GenericForm from './generic-form'
@@ -23,10 +23,14 @@ class ProjectForm extends GenericForm {
     }
   }
 
-  _form_inputs(){
+  _formInputs(){
     return [
       {name: 'name'}
     ]
+  }
+
+  _formData(){
+    return this.state.project
   }
 
   _handleSubmit(event){
@@ -55,8 +59,11 @@ class ProjectForm extends GenericForm {
       .then(() => this.props.router.push(util.format('/clients/%s/projects',
         this.state.client_id)))
   }
+
+  _showDelete(){
+    return this.state.project.hasOwnProperty('_id')
+  }
 }  
 
 export default ProjectForm
-
 

@@ -8,6 +8,7 @@ router.use('/:invoice_id/invoice_items', require('./invoice-items'))
 
 router.param('invoice_id', (req, res, next, invoice_id) => {
   Invoice.findById(invoice_id)
+    .populate('client')
     .then(doc => {
       if (doc){
         req.invoice = doc
@@ -22,6 +23,7 @@ router.param('invoice_id', (req, res, next, invoice_id) => {
 
 router.get('/', (req, res, next) => {
   Invoice.find({})
+    .populate('client')
     .then(docs => res.json(docs))
     .catch(err => next(err))
 })

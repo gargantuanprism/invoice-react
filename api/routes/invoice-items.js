@@ -20,7 +20,7 @@ router.param('invoice_item_id', (req, res, next, invoice_item_id) => {
 router.get('/', (req, res, next) => res.json(req.invoice.invoice_items))
 
 router.post('/', (req, res, next) => {
-  req.invoice.invoice_items.push(req.body.invoice_item)
+  req.invoice.invoiceItems.push(req.body.item)
   req.invoice.save()
     .then(doc => res.json(doc))
     .catch(err => next(err))
@@ -29,7 +29,7 @@ router.post('/', (req, res, next) => {
 router.get('/:invoice_item_id', (req, res, next) => res.json(req.invoice_item))
 
 router.put('/:invoice_item_id', (req, res, next) => {
-  Object.assign(req.invoice_item, req.body.invoice_item)
+  Object.assign(req.invoice_item, req.body.item)
   req.invoice.save()
     .then(doc => res.json(doc))
     .catch(err => next(err))

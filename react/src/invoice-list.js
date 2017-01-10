@@ -1,4 +1,5 @@
 import util from 'util'
+import 'datejs'
 
 import React, {Component} from 'react'
 import {Link} from 'react-router'
@@ -21,11 +22,22 @@ class InvoiceList extends Component {
 
   render(){
     const rows = this.state.invoices.map((inv) => (
-      <li key={inv._id}>
-        <Link to={util.format('/invoices/%s', inv._id)}>
-          {inv.desc}
-        </Link>
-      </li>
+      <div key={inv._id}>
+        <div className="row">
+          <div className="small-6 columns">
+            <Link to={util.format('/invoices/%s', inv._id)}>
+              {inv.desc}
+            </Link>
+          </div>
+          <div className="small-6 columns">
+            {Date.parse(inv.createdAt).toString('yyyy-MM-dd')}
+          </div>
+        </div>
+        <div className="row">
+          <div className="small-6 columns">{inv.client.name}</div>
+          <div className="small-6 columns">{inv.slug}</div>
+        </div>
+      </div>
     ))
       
     return (

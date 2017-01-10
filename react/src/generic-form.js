@@ -1,3 +1,5 @@
+import util from 'util'
+
 import _ from 'lodash'
 import React, {Component} from 'react'
 
@@ -7,20 +9,37 @@ const FormFooter = (props) => (
       <button type="submit" className="button">Save</button>
       <button type="button" className="button secondary"
         onClick={props.router.goBack}>Cancel</button>
+
+      {props.showDelete &&
+          <button type="button" className="button alert"
+            onClick={props.onDelete}>Delete</button>
+      }
     </div>
   </div>
 )
 
 const SelectElement = (props) => {
   const source = props.input.source
-  const items = source.items.map((item, i) => (
-    <option key={i} value={item[source.value]}>
-      {item[source.text]}
-    </option>
-  ))
+  const items = source.items.map((item, i) => {
+    if (typeof item === 'string'){
+      return (
+        <option key={i} value={item}>
+          {item}
+        </option>
+      )
+    }
+    else {
+      return (
+        <option key={i} value={item[source.value]}>
+          {item[source.text]}
+        </option>
+      )
+    }
+  })
 
   return (
-    <select name={props.input.name} onChange={props.onChange}>
+    <select name={props.input.name} onChange={props.onChange}
+      value={props.value}>
       <option>---</option>
       {items}
     </select>
@@ -33,15 +52,23 @@ const FormInputs = (props) => {
     var element;
 
     switch(type){
-      case  'text':
+      case 'text':
+      case 'email':
+      case 'tel':
+      case 'number':
         element = (
-          <input type="text" name={input.name} onChange={props.onChange} />
+          <input type={type} name={input.name} onChange={props.onChange}
+            value={props.formData[input.name]} />
         )
         break;
 
       case 'select':
+        const value = input.value_path ? 
+          _.at(props.formData, input.value_path)[0]: props.formData[input.name]
+
         element = (
-          <SelectElement input={input} onChange={props.onChange} />
+          <SelectElement input={input} onChange={props.onChange}
+            value={value} />
         )
         break;
 
@@ -49,7 +76,8 @@ const FormInputs = (props) => {
         element = (
           <div className="switch">
             <input className="switch-input" type="checkbox" id={input.name}
-              name={input.name} onChange={props.onChange} />
+              name={input.name} onChange={props.onChange}
+              checked={props.formData[input.name]} />
             <label className="switch-paddle" htmlFor={input.name}>
             </label>
           </div>
@@ -78,6 +106,55 @@ const FormInputs = (props) => {
 }
 
 class GenericForm extends Component {
+  componentDidMount(){
+    this._virtualError('componentDidMount')
+  }
+
+  render(){
+    return (
+      <div>
+        {this._optionalHeader()}
+
+        <form onSubmit={this._handleSubmit.bind(this)}>
+          <FormInputs inputs={this._formInputs()}
+            onChange={this._handleChange.bind(this)}
+            formData={this._formData()} />
+          <FormFooter router={this.props.router} 
+            showDelete={this._showDelete()}
+            onDelete={this._handleDelete.bind(this)} />
+        </form>
+      </div>
+    )
+  }
+
+  _optionalHeader(){
+    return ''
+  }
+
+  _handleDelete(){
+    this._virtualError('_handleDelete')
+  }
+
+  _handleSubmit(){
+    this._virtualError('_handleSubmit')
+  }
+
+  _changeState(){
+    this._virtualError('_changeState')
+  }
+
+  _showDelete(){
+    this._virtualError('_showDelete')
+  }
+
+  _formInputs(){
+    this._virtualError('_formInputs')
+  }
+
+  _formData(){
+    this._virtualError('_formData')
+  }
+  
   _handleChange(event){
     var value;
 
@@ -93,14 +170,13 @@ class GenericForm extends Component {
     this._changeState(event.target.name, value)
   }
 
-  render(){
-    return (
-      <form onSubmit={this._handleSubmit.bind(this)}>
-        <FormInputs inputs={this._form_inputs()} 
-          onChange={this._handleChange.bind(this)} />
-        <FormFooter router={this.props.router} />
-      </form>
-    )
+  _handleError(err){
+    console.error(err)
+  }
+
+  _virtualError(name){
+    throw new Error(util.format('%s must be implemented by %s',
+      name, this.constructor.name))
   }
 }
 

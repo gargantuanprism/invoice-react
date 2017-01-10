@@ -10,6 +10,8 @@ import ProjectList from './project-list'
 import ProjectForm from './project-form'
 import InvoiceList from './invoice-list'
 import InvoiceForm from './invoice-form'
+import InvoiceItemList from './invoice-item-list'
+import InvoiceItemForm from './invoice-item-form'
 import App from './App'
 
 import './index.css';
@@ -22,6 +24,10 @@ ReactDOM.render((
         <Route path="new" component={InvoiceForm} />
         <Route path=":invoice_id">
           <IndexRoute component={InvoiceForm} />
+          <Route path="items">
+            <IndexRoute component={InvoiceItemList} />
+            <Route path=":invoice_item_id" component={InvoiceItemForm} />
+          </Route>
         </Route>
       </Route>
 
